@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Databricks Data Analyst - Complete Study Guide + Simulator</title>
+    <title>Databricks Simulator - Auto-Load from Google Sheets</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -74,133 +74,12 @@
             border-color: var(--accent);
         }
 
-        .main-wrapper {
-            display: flex;
-            flex: 1;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: rgba(22, 33, 62, 0.8);
-            border-right: 2px solid var(--accent);
-            overflow-y: auto;
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            max-height: 100vh;
-        }
-
-        .sidebar-title {
-            padding: 1rem 1.5rem;
-            color: var(--accent);
-            font-weight: 900;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
-            margin-bottom: 1rem;
-        }
-
-        .nav-item {
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            border-left: 4px solid transparent;
-            transition: all 0.3s ease;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95em;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent);
-        }
-
-        .nav-item.active {
-            background: rgba(0, 212, 255, 0.15);
-            color: var(--accent);
-            border-left-color: var(--accent);
-        }
-
-        .nav-number {
-            display: inline-block;
-            background: var(--accent);
-            color: var(--primary);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            margin-right: 0.5rem;
-            font-size: 0.8em;
-            font-weight: 900;
-        }
-
-        .nav-simulator {
-            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(0, 212, 255, 0.1));
-            border-top: 2px solid var(--accent2);
-            margin-top: 2rem;
-            padding-top: 1rem;
-        }
-
         .content {
             flex: 1;
             padding: 3rem 2rem;
-            overflow-y: auto;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-        }
-
-        .hidden-lang { display: none !important; }
-        .hidden-section { display: none !important; }
-
-        .concept-section {
-            background: linear-gradient(135deg, rgba(22, 33, 62, 0.8), rgba(22, 33, 62, 0.5));
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 3rem;
-            margin-bottom: 4rem;
-            position: relative;
-        }
-
-        .concept-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 16px 16px 0 0;
-        }
-
-        .concept-title {
-            font-size: 2.2em;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            font-weight: 900;
-        }
-
-        .explanation-box {
-            background: rgba(46, 204, 113, 0.08);
-            border-left: 6px solid var(--success);
-            padding: 1.8rem;
-            margin: 1.5rem 0;
-            border-radius: 10px;
-            line-height: 1.8;
-        }
-
-        .code-block {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            line-height: 1.7;
-            color: #00FF00;
-            overflow-x: auto;
+            width: 100%;
         }
 
         .quiz-section {
@@ -211,7 +90,7 @@
         }
 
         .quiz-title {
-            font-size: 2.2em;
+            font-size: 2em;
             color: var(--accent2);
             margin-bottom: 0.5rem;
             font-weight: 900;
@@ -220,7 +99,29 @@
         .quiz-subtitle {
             color: var(--text-muted);
             margin-bottom: 2rem;
-            font-size: 1.05em;
+            font-size: 1em;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.2em;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .question-card {
@@ -235,7 +136,6 @@
             color: var(--accent2);
             font-weight: 900;
             margin-bottom: 0.8rem;
-            font-size: 0.95em;
         }
 
         .question-text {
@@ -350,11 +250,73 @@
             color: var(--danger);
         }
 
+        .detailed-review {
+            text-align: left;
+            margin-top: 2rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .review-item {
+            background: rgba(15, 52, 96, 0.6);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .review-item.correct {
+            border-left-color: var(--success);
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .review-item.incorrect {
+            border-left-color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .review-question {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 0.95em;
+        }
+
+        .review-answer {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+
+        .review-answer strong {
+            color: var(--accent);
+        }
+
+        .answer-correct {
+            color: var(--success);
+        }
+
+        .answer-incorrect {
+            color: var(--danger);
+        }
+
+        .review-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(243, 156, 18, 0.1);
+            border-left: 3px solid var(--warning);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
         .result-details {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             padding: 2rem;
-            margin-top: 2rem;
+            margin: 2rem 0;
             text-align: left;
         }
 
@@ -409,366 +371,236 @@
             transition: width 0.3s ease;
         }
 
-        .sidebar-toggle {
-            display: none;
-            background: var(--accent);
-            color: var(--primary);
-            border: none;
-            padding: 0.8rem 1rem;
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 1.5rem;
             border-radius: 6px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1em;
+            color: var(--text-light);
         }
 
-        @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                height: 100vh;
-                z-index: 999;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.open {
-                left: 0;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
+        @media (max-width: 768px) {
+            .content { padding: 1.5rem; }
+            .quiz-section { padding: 1.5rem; }
+            .navbar { padding: 1rem; }
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
-            <div class="logo">📊 Databricks Certification</div>
-        </div>
+        <div class="logo">📊 Databricks Simulator</div>
         <div class="lang-switcher">
-            <button class="lang-btn active" onclick="setLanguage('pt')">🇧🇷 PT</button>
-            <button class="lang-btn" onclick="setLanguage('en')">🇺🇸 EN</button>
+            <button class="lang-btn active" onclick="switchLanguage('pt')">🇧🇷 PT</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">🇺🇸 EN</button>
         </div>
     </div>
 
-    <div class="main-wrapper">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-title" id="nav-title">📚 Concepts</div>
-            <div class="nav-item active" onclick="showConcept(1)">
-                <span class="nav-number">1</span><span id="nav-1">SQL Order + Window</span>
-            </div>
-            <div class="nav-item" onclick="showConcept(2)">
-                <span class="nav-number">2</span><span id="nav-2">CTE vs TEMP TABLE</span>
-            </div>
-            <div class="nav-item" onclick="showConcept(3)">
-                <span class="nav-number">3</span><span id="nav-3">ROLLUP vs CUBE</span>
-            </div>
-            <div class="nav-item" onclick="showConcept(4)">
-                <span class="nav-number">4</span><span id="nav-4">Liquid Clustering</span>
-            </div>
-            <div class="nav-item" onclick="showConcept(5)">
-                <span class="nav-number">5</span><span id="nav-5">Unity Catalog</span>
-            </div>
-            <div class="nav-item" onclick="showConcept(6)">
-                <span class="nav-number">6</span><span id="nav-6">LAG Function</span>
-            </div>
-            <div class="nav-simulator">
-                <div class="nav-item" onclick="showConcept('quiz')">
-                    <span style="font-size: 1.2em; margin-right: 0.5rem;">🎯</span><span id="nav-quiz">Simulator</span>
-                </div>
+    <div class="content">
+        <div id="quiz-section" class="quiz-section" style="display: none;">
+            <h2 class="quiz-title" id="quiz-title">🎯 Simulador Databricks</h2>
+            <p class="quiz-subtitle" id="quiz-subtitle">Questões carregadas do Google Sheets</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="progress-bar"></div></div>
+            <div id="quiz-container"></div>
+            <button class="quiz-button" onclick="submitQuiz()" id="submit-btn">📊 Enviar Respostas</button>
+        </div>
+
+        <div id="loading-section" class="quiz-section">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p id="loading-text">Carregando questões da planilha...</p>
             </div>
         </div>
 
-        <div class="content">
-            <div id="pt-content" class="lang-content">
-                <div id="concept-1-pt" class="concept-section">
-                    <h2 class="concept-title">1️⃣ SQL Execution Order + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>Por que window functions não podem estar em WHERE?</strong><br>
-                        Porque SQL executa em ORDEM ESPECÍFICA: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>
-                        Window functions calculam no passo SELECT (passo 4), mas WHERE é passo 2!<br><br>
-                        <strong>Solução:</strong> Use CTE para calcular ANTES de WHERE.
-                    </div>
-                    <div class="code-block">❌ ERRADO: WHERE ROW_NUMBER() OVER (...) = 1;
-
-✅ CORRETO: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT * FROM ranked WHERE rn = 1;</div>
+        <div id="results-section" class="results-section">
+            <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;" id="results-title">Seus Resultados</h3>
+            <div class="score-display" id="score-display">0/20</div>
+            <div class="score-text" id="score-percentage">0%</div>
+            <div class="score-status" id="score-status">Tente Novamente</div>
+            
+            <div class="result-details">
+                <div class="detail-item">
+                    <span class="detail-label">✅ Acertos:</span>
+                    <span class="detail-value" id="correct-count">0</span>
                 </div>
-
-                <div id="concept-2-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">2️⃣ CTE vs TEMP TABLE</h2>
-                    <div class="explanation-box">
-                        <strong>CTE (WITH):</strong> Memória, apenas esta query, sem overhead<br>
-                        <strong>TEMP TABLE:</strong> Disco, persiste até DROP, mais lento<br>
-                        <strong>Para Debugging:</strong> CTE é MUITO melhor!
-                    </div>
-                    <div class="code-block">❌ EVITAR: CREATE TEMP TABLE step1 AS SELECT *;
-
-✅ PREFERIR: WITH step1 AS (SELECT * FROM raw_data)
-SELECT * FROM step1;</div>
+                <div class="detail-item">
+                    <span class="detail-label">❌ Erros:</span>
+                    <span class="detail-value" id="wrong-count">0</span>
                 </div>
-
-                <div id="concept-3-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">3️⃣ ROLLUP vs CUBE vs GROUPING SETS</h2>
-                    <div class="explanation-box">
-                        <strong>ROLLUP:</strong> Cascata hierárquica (região → loja) ✅<br>
-                        <strong>CUBE:</strong> TODAS combinações (geralmente inútil) ❌<br>
-                        <strong>GROUPING SETS:</strong> Você especifica exatamente ✅<br>
-                        <strong>UNION ALL:</strong> 3x mais lento ❌
-                    </div>
-                    <div class="code-block">GROUP BY ROLLUP(region, store_id)
--- Gera: (region, store), (region), ()
--- 1 scan, hierárquico, perfeito!</div>
+                <div class="detail-item">
+                    <span class="detail-label">📊 Taxa de Acerto:</span>
+                    <span class="detail-value" id="percentage">0%</span>
                 </div>
-
-                <div id="concept-4-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">4️⃣ Liquid Clustering + OPTIMIZE</h2>
-                    <div class="explanation-box">
-                        <strong>DEFINE</strong> (CLUSTER BY): Define ESTRATÉGIA nos metadados<br>
-                        <strong>APPLY</strong> (OPTIMIZE): Reorganiza FISICAMENTE no disco<br>
-                        ⚠️ Sem OPTIMIZE, dados continuam desorganizados!
-                    </div>
-                    <div class="code-block">CREATE TABLE orders (...) CLUSTER BY (customer_id);
-INSERT INTO orders VALUES (...);
-OPTIMIZE orders;  -- ✅ NECESSÁRIO!</div>
-                </div>
-
-                <div id="concept-5-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">5️⃣ Unity Catalog Deny-by-Default</h2>
-                    <div class="explanation-box">
-                        ❌ ERRO: "Schemas vazios são invisíveis"<br>
-                        ✅ CORRETO: Invisíveis porque FALTA USE SCHEMA privilege!<br>
-                        Um schema pode ter 100 tabelas mas ser INVISÍVEL.
-                    </div>
-                    <div class="code-block">GRANT USE SCHEMA ON SCHEMA prod.analytics TO `user@company.com`;
--- Agora aparece em SHOW SCHEMAS!</div>
-                </div>
-
-                <div id="concept-6-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">6️⃣ LAG Function + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>LAG:</strong> Traz valor da linha ANTERIOR<br>
-                        <strong>Problema:</strong> LAG calcula TODOS gaps (1→2, 2→3, 3→4...)<br>
-                        <strong>Solução:</strong> Use ROW_NUMBER() + JOIN para posição específica
-                    </div>
-                    <div class="code-block">❌ ERRADO: AVG(DATEDIFF(..., LAG(...)))
-
-✅ CORRETO: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT AVG(DATEDIFF(r2.order_date, r1.order_date))
-FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 AND r2.rn = 2;</div>
-                </div>
-
-                <div id="quiz-pt" class="quiz-section hidden-section">
-                    <h2 class="quiz-title">🎯 Simulador Databricks Certified Data Analyst Associate</h2>
-                    <p class="quiz-subtitle">20 questões - Meta: 70% (14 acertos) para PASSAR no exame</p>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="progress-pt"></div></div>
-                    <div id="quiz-container-pt"></div>
-                    <button class="quiz-button" onclick="submitQuiz('pt')">📊 Enviar Respostas</button>
-                    <div id="results-pt" class="results-section">
-                        <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;">Seus Resultados</h3>
-                        <div class="score-display" id="score-display-pt">0/20</div>
-                        <div class="score-text" id="score-percentage-pt">0%</div>
-                        <div class="score-status" id="score-status-pt">Tente Novamente</div>
-                        <div class="result-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Acertos:</span>
-                                <span class="detail-value" id="correct-count-pt">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Erros:</span>
-                                <span class="detail-value" id="wrong-count-pt">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Taxa de Acerto:</span>
-                                <span class="detail-value" id="percentage-pt">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Status:</span>
-                                <span class="detail-value" id="final-status-pt">Abaixo da meta</span>
-                            </div>
-                        </div>
-                        <button class="reset-button" onclick="resetQuiz('pt')">🔄 Refazer Quiz</button>
-                    </div>
+                <div class="detail-item">
+                    <span class="detail-label">🎯 Status:</span>
+                    <span class="detail-value" id="final-status">Abaixo da meta</span>
                 </div>
             </div>
 
-            <div id="en-content" class="lang-content hidden-lang">
-                <div id="concept-1-en" class="concept-section">
-                    <h2 class="concept-title">1️⃣ SQL Execution Order + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>Why can't window functions be in WHERE?</strong><br>
-                        Because SQL executes in SPECIFIC ORDER: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>
-                        Window functions calculate in SELECT step (step 4), but WHERE is step 2!<br><br>
-                        <strong>Solution:</strong> Use CTE to calculate BEFORE WHERE.
-                    </div>
-                    <div class="code-block">❌ WRONG: WHERE ROW_NUMBER() OVER (...) = 1;
+            <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;" id="review-title">📋 Revisão Detalhada</h3>
+            <div class="detailed-review" id="detailed-review"></div>
 
-✅ CORRECT: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT * FROM ranked WHERE rn = 1;</div>
-                </div>
-
-                <div id="concept-2-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">2️⃣ CTE vs TEMP TABLE</h2>
-                    <div class="explanation-box">
-                        <strong>CTE (WITH):</strong> Memory, only this query, no overhead<br>
-                        <strong>TEMP TABLE:</strong> Disk, persists until DROP, slower<br>
-                        <strong>For Debugging:</strong> CTE is MUCH better!
-                    </div>
-                    <div class="code-block">❌ AVOID: CREATE TEMP TABLE step1 AS SELECT *;
-
-✅ PREFER: WITH step1 AS (SELECT * FROM raw_data)
-SELECT * FROM step1;</div>
-                </div>
-
-                <div id="concept-3-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">3️⃣ ROLLUP vs CUBE vs GROUPING SETS</h2>
-                    <div class="explanation-box">
-                        <strong>ROLLUP:</strong> Hierarchical cascade (region → store) ✅<br>
-                        <strong>CUBE:</strong> ALL combinations (usually useless) ❌<br>
-                        <strong>GROUPING SETS:</strong> You specify exactly ✅<br>
-                        <strong>UNION ALL:</strong> 3x slower ❌
-                    </div>
-                    <div class="code-block">GROUP BY ROLLUP(region, store_id)
--- Generates: (region, store), (region), ()
--- 1 scan, hierarchical, perfect!</div>
-                </div>
-
-                <div id="concept-4-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">4️⃣ Liquid Clustering + OPTIMIZE</h2>
-                    <div class="explanation-box">
-                        <strong>DEFINE</strong> (CLUSTER BY): Define STRATEGY in metadata<br>
-                        <strong>APPLY</strong> (OPTIMIZE): Reorganize PHYSICALLY on disk<br>
-                        ⚠️ Without OPTIMIZE, data stays disorganized!
-                    </div>
-                    <div class="code-block">CREATE TABLE orders (...) CLUSTER BY (customer_id);
-INSERT INTO orders VALUES (...);
-OPTIMIZE orders;  -- ✅ REQUIRED!</div>
-                </div>
-
-                <div id="concept-5-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">5️⃣ Unity Catalog Deny-by-Default</h2>
-                    <div class="explanation-box">
-                        ❌ ERROR: "Empty schemas are invisible"<br>
-                        ✅ CORRECT: Invisible because LACKING USE SCHEMA privilege!<br>
-                        A schema can have 100 tables but be INVISIBLE.
-                    </div>
-                    <div class="code-block">GRANT USE SCHEMA ON SCHEMA prod.analytics TO `user@company.com`;
--- Now appears in SHOW SCHEMAS!</div>
-                </div>
-
-                <div id="concept-6-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">6️⃣ LAG Function + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>LAG:</strong> Brings value from PREVIOUS row<br>
-                        <strong>Problem:</strong> LAG calculates ALL gaps (1→2, 2→3, 3→4...)<br>
-                        <strong>Solution:</strong> Use ROW_NUMBER() + JOIN for specific position
-                    </div>
-                    <div class="code-block">❌ WRONG: AVG(DATEDIFF(..., LAG(...)))
-
-✅ CORRECT: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT AVG(DATEDIFF(r2.order_date, r1.order_date))
-FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 AND r2.rn = 2;</div>
-                </div>
-
-                <div id="quiz-en" class="quiz-section hidden-section">
-                    <h2 class="quiz-title">🎯 Databricks Certified Data Analyst Associate Simulator</h2>
-                    <p class="quiz-subtitle">20 questions - Target: 70% (14 correct) to PASS the exam</p>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="progress-en"></div></div>
-                    <div id="quiz-container-en"></div>
-                    <button class="quiz-button" onclick="submitQuiz('en')">📊 Submit Answers</button>
-                    <div id="results-en" class="results-section">
-                        <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;">Your Results</h3>
-                        <div class="score-display" id="score-display-en">0/20</div>
-                        <div class="score-text" id="score-percentage-en">0%</div>
-                        <div class="score-status" id="score-status-en">Try Again</div>
-                        <div class="result-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Correct:</span>
-                                <span class="detail-value" id="correct-count-en">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Wrong:</span>
-                                <span class="detail-value" id="wrong-count-en">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Accuracy Rate:</span>
-                                <span class="detail-value" id="percentage-en">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Status:</span>
-                                <span class="detail-value" id="final-status-en">Below target</span>
-                            </div>
-                        </div>
-                        <button class="reset-button" onclick="resetQuiz('en')">🔄 Retake Quiz</button>
-                    </div>
-                </div>
-            </div>
+            <button class="reset-button" onclick="resetQuiz()" id="reset-btn">🔄 Refazer Quiz</button>
         </div>
     </div>
 
     <script>
-        const quizDataPT = [
-            { q: "Uma data engineer tenta usar ROW_NUMBER() OVER (...) em uma cláusula WHERE. O que acontece?", opts: ["Funciona normalmente", "Gera erro porque window functions executam DEPOIS de WHERE", "Requer GROUP BY obrigatoriamente"], c: 1 },
-            { q: "Qual é a principal vantagem de CTE sobre TEMP TABLE para debugging?", opts: ["Mais rápida porque reside em MEMÓRIA", "Oferece melhor performance", "Não precisa DROP"], c: 0 },
-            { q: "Você precisa gerar 3 níveis: (region, store), (region), e grand total. Qual comando é IDEAL?", opts: ["CUBE", "ROLLUP porque cria cascata hierárquica", "GROUPING SETS"], c: 1 },
-            { q: "CUBE(region, store_id) gera quais combinações?", opts: ["(region, store_id), (region), ()", "(region, store_id), (region), (store_id), ()", "Todas as combinações possíveis com NULL"], c: 1 },
-            { q: "Qual é o primeiro passo para implementar Liquid Clustering?", opts: ["Rodar OPTIMIZE", "Definir com CLUSTER BY na CREATE/ALTER TABLE", "Inserir dados"], c: 1 },
-            { q: "O que OPTIMIZE faz no Liquid Clustering?", opts: ["Define a estratégia", "Reorganiza FISICAMENTE os arquivos no disco", "Apenas metadados"], c: 1 },
-            { q: "Um schema em Unity Catalog com 50 tabelas não aparece em SHOW SCHEMAS. Por quê?", opts: ["Schema está vazio", "Falta USE SCHEMA privilege (deny-by-default)", "Precisa USE CATALOG"], c: 1 },
-            { q: "Qual privilégio é necessário para um usuário VER um schema em Unity Catalog?", opts: ["USE CATALOG", "USE SCHEMA", "SELECT"], c: 1 },
-            { q: "LAG(revenue) OVER (PARTITION BY customer_id ORDER BY date) calcula qual gap?", opts: ["Apenas 1º para 2º pedido", "TODOS os gaps sequenciais (CORRETO)", "Nenhum gap específico"], c: 1 },
-            { q: "Para obter APENAS o gap entre 1º e 2º pedido de um customer, qual abordagem usar?", opts: ["LAG com AVG direto", "ROW_NUMBER() + JOIN filtrando rn=1 e rn=2 (CORRETO)", "LAG com WHERE"], c: 1 },
-            { q: "Uma query usa window function em GROUP BY. O que acontece?", opts: ["Funciona", "Erro porque conflita com agregação regular", "Precisa CTE"], c: 1 },
-            { q: "Qual é o impacto de performance: ROLLUP vs UNION ALL com 3 GROUP BY?", opts: ["ROLLUP = 3 scans, UNION ALL = 1 scan", "ROLLUP = 1 scan, UNION ALL = 3 scans (CORRETO)", "Ambos iguais"], c: 1 },
-            { q: "GROUPING SETS é útil quando você quer:", opts: ["Hierarquia natural", "Combinações específicas que você escolhe", "Todas as possibilidades"], c: 1 },
-            { q: "Após CREATE TABLE (...) CLUSTER BY (customer_id), sem OPTIMIZE, os dados estão:", opts: ["Organizados pelo customer_id", "Aleatórios no disco (não aplicado ainda)", "Em memória"], c: 1 },
-            { q: "Um usuário tem USE CATALOG mas não USE SCHEMA. Pode ver os schemas?", opts: ["Sim", "Não (precisa USE SCHEMA também)", "Depende"], c: 1 },
-            { q: "CTE é ideal para qual situação?", opts: ["Queries muito complexas", "Debugging iterativo (sem overhead de disco)", "Dados que precisam persistir"], c: 1 },
-            { q: "CUBE(A, B) vs ROLLUP(A, B): qual gera (B) isolado?", opts: ["Nenhum", "Apenas CUBE", "Ambos"], c: 1 },
-            { q: "Uma window function calculada em SELECT pode ser usada em WHERE?", opts: ["Sim, com CTE", "Não diretamente, precisa CTE ou subquery", "Depende da função"], c: 1 },
-            { q: "Qual comando DEFINE e qual APLICA em Liquid Clustering?", opts: ["CLUSTER BY define, OPTIMIZE aplica (CORRETO)", "OPTIMIZE define, CLUSTER BY aplica", "Ambos definem"], c: 0 },
-            { q: "Um schema tem privilégio USE SCHEMA mas está vazio. Aparece em SHOW SCHEMAS?", opts: ["Não porque está vazio", "Sim porque tem privilégio (CORRETO)", "Depende do tipo"], c: 1 }
-        ];
+        const SHEET_ID = '1-QHlyDSk-gsqmhorV5hj-wNAauNXDCLYQHkoUe8O9to';
+        const SHEET_GID_PT = '0';
+        const SHEET_GID_EN = '1';
 
-        const quizDataEN = [
-            { q: "A data engineer tries to use ROW_NUMBER() OVER (...) in a WHERE clause. What happens?", opts: ["Works normally", "Error because window functions execute AFTER WHERE", "Requires GROUP BY"], c: 1 },
-            { q: "What is the main advantage of CTE over TEMP TABLE for debugging?", opts: ["Faster because it resides in MEMORY", "Better performance overall", "No DROP needed"], c: 0 },
-            { q: "You need to generate 3 levels: (region, store), (region), and grand total. Which command is IDEAL?", opts: ["CUBE", "ROLLUP because it creates hierarchical cascade", "GROUPING SETS"], c: 1 },
-            { q: "CUBE(region, store_id) generates which combinations?", opts: ["(region, store_id), (region), ()", "(region, store_id), (region), (store_id), ()", "All possible combinations with NULL"], c: 1 },
-            { q: "What is the first step to implement Liquid Clustering?", opts: ["Run OPTIMIZE", "Define with CLUSTER BY in CREATE/ALTER TABLE", "Insert data"], c: 1 },
-            { q: "What does OPTIMIZE do in Liquid Clustering?", opts: ["Defines strategy", "Reorganizes PHYSICALLY files on disk", "Metadata only"], c: 1 },
-            { q: "A schema in Unity Catalog with 50 tables doesn't appear in SHOW SCHEMAS. Why?", opts: ["Schema is empty", "Lacking USE SCHEMA privilege (deny-by-default)", "Needs USE CATALOG"], c: 1 },
-            { q: "Which privilege is needed for a user to SEE a schema in Unity Catalog?", opts: ["USE CATALOG", "USE SCHEMA", "SELECT"], c: 1 },
-            { q: "LAG(revenue) OVER (PARTITION BY customer_id ORDER BY date) calculates which gap?", opts: ["Only 1st to 2nd order", "ALL sequential gaps (CORRECT)", "No specific gap"], c: 1 },
-            { q: "To get ONLY the gap between 1st and 2nd order of a customer, which approach?", opts: ["LAG with AVG directly", "ROW_NUMBER() + JOIN filtering rn=1 and rn=2 (CORRECT)", "LAG with WHERE"], c: 1 },
-            { q: "A query uses window function in GROUP BY. What happens?", opts: ["Works", "Error because conflicts with regular aggregation", "Requires CTE"], c: 1 },
-            { q: "Performance impact: ROLLUP vs UNION ALL with 3 GROUP BYs?", opts: ["ROLLUP = 3 scans, UNION ALL = 1 scan", "ROLLUP = 1 scan, UNION ALL = 3 scans (CORRECT)", "Both equal"], c: 1 },
-            { q: "GROUPING SETS is useful when you want:", opts: ["Natural hierarchy", "Specific combinations you choose", "All possibilities"], c: 1 },
-            { q: "After CREATE TABLE (...) CLUSTER BY (customer_id), without OPTIMIZE, data is:", opts: ["Organized by customer_id", "Random on disk (not applied yet)", "In memory"], c: 1 },
-            { q: "A user has USE CATALOG but not USE SCHEMA. Can see schemas?", opts: ["Yes", "No (needs USE SCHEMA too)", "Depends"], c: 1 },
-            { q: "CTE is ideal for which situation?", opts: ["Very complex queries", "Iterative debugging (no disk overhead)", "Data that needs to persist"], c: 1 },
-            { q: "CUBE(A, B) vs ROLLUP(A, B): which generates (B) isolated?", opts: ["Neither", "Only CUBE", "Both"], c: 1 },
-            { q: "A window function calculated in SELECT can be used in WHERE?", opts: ["Yes with CTE", "Not directly, needs CTE or subquery", "Depends on function"], c: 1 },
-            { q: "Which command DEFINES and which APPLIES in Liquid Clustering?", opts: ["CLUSTER BY defines, OPTIMIZE applies (CORRECT)", "OPTIMIZE defines, CLUSTER BY applies", "Both define"], c: 0 },
-            { q: "A schema has USE SCHEMA privilege but is empty. Appears in SHOW SCHEMAS?", opts: ["No because empty", "Yes because has privilege (CORRECT)", "Depends on type"], c: 1 }
-        ];
+        let quizData = [];
+        let userAnswers = [];
+        let currentLanguage = 'pt';
 
-        function renderQuiz(lang) {
-            const quizData = lang === 'pt' ? quizDataPT : quizDataEN;
-            const container = document.getElementById(`quiz-container-${lang}`);
+        const texts = {
+            pt: {
+                loading: 'Carregando questões da planilha...',
+                title: '🎯 Simulador Databricks',
+                subtitle: 'Questões carregadas do Google Sheets - Meta: 70% para passar',
+                submitBtn: '📊 Enviar Respostas',
+                resultsTitle: 'Seus Resultados',
+                reviewTitle: '📋 Revisão Detalhada',
+                resetBtn: '🔄 Refazer Quiz',
+                passed: '🎉 APROVADO!',
+                failed: '📖 Tente Novamente',
+                ready: '✅ Pronto para exame!',
+                belowTarget: '❌ Abaixo da meta (70%)',
+                question: 'Questão',
+                correct: '✅ Acertos:',
+                wrong: '❌ Erros:',
+                accuracy: '📊 Taxa de Acerto:',
+                status: '🎯 Status:',
+                yourAnswer: 'Sua resposta:',
+                correctAnswer: 'Resposta correta:',
+                explanation: '💡 Explicação:'
+            },
+            en: {
+                loading: 'Loading questions from spreadsheet...',
+                title: '🎯 Databricks Simulator',
+                subtitle: 'Questions loaded from Google Sheets - Target: 70% to pass',
+                submitBtn: '📊 Submit Answers',
+                resultsTitle: 'Your Results',
+                reviewTitle: '📋 Detailed Review',
+                resetBtn: '🔄 Retake Quiz',
+                passed: '🎉 PASSED!',
+                failed: '📖 Try Again',
+                ready: '✅ Ready for exam!',
+                belowTarget: '❌ Below target (70%)',
+                question: 'Question',
+                correct: '✅ Correct:',
+                wrong: '❌ Wrong:',
+                accuracy: '📊 Accuracy Rate:',
+                status: '🎯 Status:',
+                yourAnswer: 'Your answer:',
+                correctAnswer: 'Correct answer:',
+                explanation: '💡 Explanation:'
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const t = texts[lang];
+            document.getElementById('quiz-title').textContent = t.title;
+            document.getElementById('quiz-subtitle').textContent = t.subtitle;
+            document.getElementById('submit-btn').textContent = t.submitBtn;
+            document.getElementById('results-title').textContent = t.resultsTitle;
+            document.getElementById('review-title').textContent = t.reviewTitle;
+            document.getElementById('reset-btn').textContent = t.resetBtn;
+            document.getElementById('loading-text').textContent = t.loading;
+            
+            loadQuestionsFromSheet(lang);
+        }
+
+        async function loadQuestionsFromSheet(lang = 'pt') {
+            const gid = lang === 'pt' ? SHEET_GID_PT : SHEET_GID_EN;
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            
+            try {
+                const response = await fetch(csvUrl);
+                const csv = await response.text();
+                
+                const lines = csv.split('\n').filter(line => line.trim());
+                quizData = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = parseCSVLine(lines[i]);
+                    if (parts.length >= 7) {
+                        quizData.push({
+                            id: i,
+                            question: parts[1],
+                            optionA: parts[2],
+                            optionB: parts[3],
+                            optionC: parts[4],
+                            correctAnswer: parseInt(parts[5]) - 1,
+                            feedback: parts[6]
+                        });
+                    }
+                }
+
+                if (quizData.length === 0) {
+                    throw new Error('Nenhuma questão encontrada');
+                }
+
+                document.getElementById('loading-section').style.display = 'none';
+                document.getElementById('quiz-section').style.display = 'block';
+                renderQuiz();
+            } catch (error) {
+                document.getElementById('loading-section').innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ Erro ao carregar:</strong> ${error.message}<br>
+                        <small>Verifique se a planilha está compartilhada publicamente.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
             container.innerHTML = '';
-            quizData.forEach((q, i) => {
+            userAnswers = new Array(quizData.length).fill(-1);
+            const t = texts[currentLanguage];
+
+            quizData.forEach((q, index) => {
                 const div = document.createElement('div');
                 div.className = 'question-card';
+                const options = [
+                    { text: q.optionA, id: 0 },
+                    { text: q.optionB, id: 1 },
+                    { text: q.optionC, id: 2 }
+                ];
+
                 div.innerHTML = `
-                    <div class="question-number">${lang === 'pt' ? 'Questão' : 'Question'} ${i+1}/20</div>
-                    <div class="question-text">${q.q}</div>
+                    <div class="question-number">${t.question} ${index + 1}/${quizData.length}</div>
+                    <div class="question-text">${q.question}</div>
                     <div class="options">
-                        ${q.opts.map((opt, j) => `
+                        ${options.map(opt => `
                             <label class="option">
-                                <input type="radio" name="q${i}" value="${j}">
-                                <label>${opt}</label>
+                                <input type="radio" name="q${index}" value="${opt.id}" onchange="userAnswers[${index}] = ${opt.id}">
+                                <label>${opt.text}</label>
                             </label>
                         `).join('')}
                     </div>
@@ -777,74 +609,72 @@ FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 A
             });
         }
 
-        function submitQuiz(lang) {
-            const quizData = lang === 'pt' ? quizDataPT : quizDataEN;
+        function submitQuiz() {
+            const t = texts[currentLanguage];
             let correct = 0;
             quizData.forEach((q, i) => {
-                const answer = document.querySelector(`input[name="q${i}"]:checked`);
-                if (answer && parseInt(answer.value) === q.c) correct++;
+                if (userAnswers[i] === q.correctAnswer) {
+                    correct++;
+                }
             });
 
-            const pct = Math.round((correct / 20) * 100);
+            const pct = Math.round((correct / quizData.length) * 100);
             const pass = pct >= 70;
 
-            document.getElementById(`score-display-${lang}`).textContent = `${correct}/20`;
-            document.getElementById(`score-percentage-${lang}`).textContent = `${pct}%`;
-            document.getElementById(`score-status-${lang}`).textContent = pass ? (lang === 'pt' ? '🎉 APROVADO!' : '🎉 PASSED!') : (lang === 'pt' ? '📖 Tente Novamente' : '📖 Try Again');
-            document.getElementById(`score-status-${lang}`).classList.add(pass ? 'pass' : 'fail');
-            document.getElementById(`correct-count-${lang}`).textContent = correct;
-            document.getElementById(`wrong-count-${lang}`).textContent = 20 - correct;
-            document.getElementById(`percentage-${lang}`).textContent = `${pct}%`;
-            document.getElementById(`final-status-${lang}`).textContent = pass ? (lang === 'pt' ? '✅ Pronto para exame!' : '✅ Ready for exam!') : (lang === 'pt' ? '❌ Abaixo da meta (70%)' : '❌ Below target (70%)');
+            document.getElementById('score-display').textContent = `${correct}/${quizData.length}`;
+            document.getElementById('score-percentage').textContent = `${pct}%`;
+            document.getElementById('score-status').textContent = pass ? t.passed : t.failed;
+            document.getElementById('score-status').classList.add(pass ? 'pass' : 'fail');
+            document.getElementById('correct-count').textContent = correct;
+            document.getElementById('wrong-count').textContent = quizData.length - correct;
+            document.getElementById('percentage').textContent = `${pct}%`;
+            document.getElementById('final-status').textContent = pass ? t.ready : t.belowTarget;
 
-            document.getElementById(`results-${lang}`).classList.add('show');
-            window.scrollTo(0, document.getElementById(`results-${lang}`).offsetTop - 100);
+            const reviewContainer = document.getElementById('detailed-review');
+            reviewContainer.innerHTML = '';
+
+            quizData.forEach((q, i) => {
+                const isCorrect = userAnswers[i] === q.correctAnswer;
+                const options = [q.optionA, q.optionB, q.optionC];
+                const userAnswerText = userAnswers[i] >= 0 ? options[userAnswers[i]] : 'Não respondida';
+                const correctAnswerText = options[q.correctAnswer];
+
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = `review-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                reviewDiv.innerHTML = `
+                    <div class="review-question">Q${i + 1}: ${q.question}</div>
+                    <div class="review-answer">
+                        <strong>${t.yourAnswer}</strong><br>
+                        <span class="${isCorrect ? 'answer-correct' : 'answer-incorrect'}">
+                            ${userAnswerText}
+                        </span>
+                    </div>
+                    ${!isCorrect ? `
+                        <div class="review-answer">
+                            <strong>${t.correctAnswer}</strong><br>
+                            <span class="answer-correct">${correctAnswerText}</span>
+                        </div>
+                    ` : ''}
+                    <div class="review-feedback">
+                        <strong>${t.explanation}</strong><br>
+                        ${q.feedback}
+                    </div>
+                `;
+                reviewContainer.appendChild(reviewDiv);
+            });
+
+            document.getElementById('results-section').classList.add('show');
+            window.scrollTo(0, document.getElementById('results-section').offsetTop - 100);
         }
 
-        function resetQuiz(lang) {
-            document.querySelectorAll(`input[type="radio"]`).forEach(r => r.checked = false);
-            document.getElementById(`results-${lang}`).classList.remove('show');
-            renderQuiz(lang);
+        function resetQuiz() {
+            document.getElementById('results-section').classList.remove('show');
+            renderQuiz();
         }
 
-        function showConcept(n) {
-            const lang = document.getElementById('pt-content').classList.contains('hidden-lang') ? 'en' : 'pt';
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`concept-${i}-${lang}`)?.classList.add('hidden-section');
-            }
-            document.getElementById(`quiz-${lang}`)?.classList.add('hidden-section');
-
-            if (n === 'quiz') {
-                document.getElementById(`quiz-${lang}`).classList.remove('hidden-section');
-                renderQuiz(lang);
-            } else {
-                document.getElementById(`concept-${n}-${lang}`).classList.remove('hidden-section');
-            }
-
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.target.closest('.nav-item').classList.add('active');
-
-            if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
-        }
-
-        function setLanguage(lang) {
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            document.querySelectorAll('.lang-content').forEach(e => e.classList.add('hidden-lang'));
-            document.getElementById(lang + '-content').classList.remove('hidden-lang');
-
-            if (lang === 'en') {
-                document.getElementById('nav-title').textContent = '📚 Concepts';
-                document.getElementById('nav-quiz').textContent = 'Simulator';
-            } else {
-                document.getElementById('nav-title').textContent = '📚 Conceitos';
-                document.getElementById('nav-quiz').textContent = 'Simulador';
-            }
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+        window.addEventListener('load', () => {
+            loadQuestionsFromSheet('pt');
+        });
     </script>
 </body>
 </html>
