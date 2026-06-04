@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Databricks - Conceitos + Simulador</title>
+    <title>Databricks Simulator</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -74,122 +74,12 @@
             border-color: var(--accent);
         }
 
-        .main-wrapper {
-            display: flex;
-            flex: 1;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: rgba(22, 33, 62, 0.8);
-            border-right: 2px solid var(--accent);
-            overflow-y: auto;
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            max-height: 100vh;
-        }
-
-        .sidebar-title {
-            padding: 1rem 1.5rem;
-            color: var(--accent);
-            font-weight: 900;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
-            margin-bottom: 1rem;
-        }
-
-        .nav-item {
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            border-left: 4px solid transparent;
-            transition: all 0.3s ease;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95em;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent);
-        }
-
-        .nav-item.active {
-            background: rgba(0, 212, 255, 0.15);
-            color: var(--accent);
-            border-left-color: var(--accent);
-        }
-
-        .nav-number {
-            display: inline-block;
-            background: var(--accent);
-            color: var(--primary);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            margin-right: 0.5rem;
-            font-size: 0.8em;
-            font-weight: 900;
-        }
-
-        .nav-simulator {
-            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(0, 212, 255, 0.1));
-            border-top: 2px solid var(--accent2);
-            margin-top: 2rem;
-            padding-top: 1rem;
-        }
-
         .content {
             flex: 1;
             padding: 3rem 2rem;
-            overflow-y: auto;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-        }
-
-        .hidden-lang { display: none !important; }
-        .hidden-section { display: none !important; }
-
-        .concept-section {
-            background: linear-gradient(135deg, rgba(22, 33, 62, 0.8), rgba(22, 33, 62, 0.5));
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 3rem;
-            margin-bottom: 4rem;
-            position: relative;
-        }
-
-        .concept-title {
-            font-size: 2.2em;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            font-weight: 900;
-        }
-
-        .explanation-box {
-            background: rgba(46, 204, 113, 0.08);
-            border-left: 6px solid var(--success);
-            padding: 1.8rem;
-            margin: 1.5rem 0;
-            border-radius: 10px;
-            line-height: 1.8;
-        }
-
-        .code-block {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            line-height: 1.7;
-            color: #00FF00;
-            overflow-x: auto;
+            width: 100%;
         }
 
         .quiz-section {
@@ -474,292 +364,66 @@
             color: var(--text-light);
         }
 
-        @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                height: 100vh;
-                z-index: 999;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.open {
-                left: 0;
-            }
+        @media (max-width: 768px) {
+            .content { padding: 1.5rem; }
+            .quiz-section { padding: 1.5rem; }
+            .navbar { padding: 1rem; }
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="logo">📊 Databricks - Conceitos + Simulador</div>
-        </div>
+        <div class="logo">📊 Databricks Simulator</div>
         <div class="lang-switcher">
-            <button class="lang-btn active" onclick="setLanguage('pt')">🇧🇷 PT</button>
-            <button class="lang-btn" onclick="setLanguage('en')">🇺🇸 EN</button>
+            <button class="lang-btn active" onclick="switchLanguage('pt')">🇧🇷 PT</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">🇺🇸 EN</button>
         </div>
     </div>
 
-    <div class="main-wrapper">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-title" id="nav-title">📚 Conceitos</div>
-            <div class="nav-item active" onclick="showSection(1, 'concept')">
-                <span class="nav-number">1</span><span id="nav-1">SQL Order + Window</span>
-            </div>
-            <div class="nav-item" onclick="showSection(2, 'concept')">
-                <span class="nav-number">2</span><span id="nav-2">CTE vs TEMP TABLE</span>
-            </div>
-            <div class="nav-item" onclick="showSection(3, 'concept')">
-                <span class="nav-number">3</span><span id="nav-3">ROLLUP vs CUBE</span>
-            </div>
-            <div class="nav-item" onclick="showSection(4, 'concept')">
-                <span class="nav-number">4</span><span id="nav-4">Liquid Clustering</span>
-            </div>
-            <div class="nav-item" onclick="showSection(5, 'concept')">
-                <span class="nav-number">5</span><span id="nav-5">Unity Catalog</span>
-            </div>
-            <div class="nav-item" onclick="showSection(6, 'concept')">
-                <span class="nav-number">6</span><span id="nav-6">LAG Function</span>
-            </div>
-            <div class="nav-simulator">
-                <div class="nav-item" onclick="showSection('quiz', 'quiz')">
-                    <span style="font-size: 1.2em; margin-right: 0.5rem;">🎯</span><span id="nav-quiz">Simulador</span>
-                </div>
+    <div class="content">
+        <div id="quiz-section" class="quiz-section" style="display: none;">
+            <h2 class="quiz-title" id="quiz-title">🎯 Simulador Databricks</h2>
+            <p class="quiz-subtitle" id="quiz-subtitle">Questões carregadas do Google Sheets</p>
+            <div id="quiz-container"></div>
+            <button class="quiz-button" onclick="submitQuiz()" id="submit-btn">📊 Enviar Respostas</button>
+        </div>
+
+        <div id="loading-section" class="quiz-section">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p id="loading-text">Carregando questões...</p>
             </div>
         </div>
 
-        <div class="content">
-            <!-- PORTUGUÊS -->
-            <div id="pt-content" class="lang-content">
-                <!-- CONCEITOS PT -->
-                <div id="concept-1-pt" class="concept-section">
-                    <h2 class="concept-title">1️⃣ SQL Execution Order + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>Por que window functions não podem estar em WHERE?</strong><br>
-                        Porque SQL executa em ORDEM ESPECÍFICA: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>
-                        Window functions calculam no passo SELECT (passo 4), mas WHERE é passo 2!<br><br>
-                        <strong>Solução:</strong> Use CTE para calcular ANTES de WHERE.
-                    </div>
-                    <div class="code-block">❌ ERRADO: WHERE ROW_NUMBER() OVER (...) = 1;
-
-✅ CORRETO: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT * FROM ranked WHERE rn = 1;</div>
+        <div id="results-section" class="results-section">
+            <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;" id="results-title">Seus Resultados</h3>
+            <div class="score-display" id="score-display">0/20</div>
+            <div class="score-text" id="score-percentage">0%</div>
+            <div class="score-status" id="score-status">Tente Novamente</div>
+            
+            <div class="result-details">
+                <div class="detail-item">
+                    <span class="detail-label">✅ Acertos:</span>
+                    <span class="detail-value" id="correct-count">0</span>
                 </div>
-
-                <div id="concept-2-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">2️⃣ CTE vs TEMP TABLE</h2>
-                    <div class="explanation-box">
-                        <strong>CTE (WITH):</strong> Memória, apenas esta query, sem overhead<br>
-                        <strong>TEMP TABLE:</strong> Disco, persiste até DROP, mais lento<br>
-                        <strong>Para Debugging:</strong> CTE é MUITO melhor!
-                    </div>
-                    <div class="code-block">❌ EVITAR: CREATE TEMP TABLE step1 AS SELECT *;
-
-✅ PREFERIR: WITH step1 AS (SELECT * FROM raw_data)
-SELECT * FROM step1;</div>
+                <div class="detail-item">
+                    <span class="detail-label">❌ Erros:</span>
+                    <span class="detail-value" id="wrong-count">0</span>
                 </div>
-
-                <div id="concept-3-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">3️⃣ ROLLUP vs CUBE vs GROUPING SETS</h2>
-                    <div class="explanation-box">
-                        <strong>ROLLUP:</strong> Cascata hierárquica (região → loja) ✅<br>
-                        <strong>CUBE:</strong> TODAS combinações (geralmente inútil) ❌<br>
-                        <strong>GROUPING SETS:</strong> Você especifica exatamente ✅<br>
-                        <strong>UNION ALL:</strong> 3x mais lento ❌
-                    </div>
-                    <div class="code-block">GROUP BY ROLLUP(region, store_id)
--- Gera: (region, store), (region), ()
--- 1 scan, hierárquico, perfeito!</div>
+                <div class="detail-item">
+                    <span class="detail-label">📊 Taxa:</span>
+                    <span class="detail-value" id="percentage">0%</span>
                 </div>
-
-                <div id="concept-4-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">4️⃣ Liquid Clustering + OPTIMIZE</h2>
-                    <div class="explanation-box">
-                        <strong>DEFINE</strong> (CLUSTER BY): Define ESTRATÉGIA nos metadados<br>
-                        <strong>APPLY</strong> (OPTIMIZE): Reorganiza FISICAMENTE no disco<br>
-                        ⚠️ Sem OPTIMIZE, dados continuam desorganizados!
-                    </div>
-                    <div class="code-block">CREATE TABLE orders (...) CLUSTER BY (customer_id);
-INSERT INTO orders VALUES (...);
-OPTIMIZE orders;  -- ✅ NECESSÁRIO!</div>
-                </div>
-
-                <div id="concept-5-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">5️⃣ Unity Catalog Deny-by-Default</h2>
-                    <div class="explanation-box">
-                        ❌ ERRO: "Schemas vazios são invisíveis"<br>
-                        ✅ CORRETO: Invisíveis porque FALTA USE SCHEMA privilege!<br>
-                        Um schema pode ter 100 tabelas mas ser INVISÍVEL.
-                    </div>
-                    <div class="code-block">GRANT USE SCHEMA ON SCHEMA prod.analytics TO `user@company.com`;
--- Agora aparece em SHOW SCHEMAS!</div>
-                </div>
-
-                <div id="concept-6-pt" class="concept-section hidden-section">
-                    <h2 class="concept-title">6️⃣ LAG Function + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>LAG:</strong> Traz valor da linha ANTERIOR<br>
-                        <strong>Problema:</strong> LAG calcula TODOS gaps (1→2, 2→3, 3→4...)<br>
-                        <strong>Solução:</strong> Use ROW_NUMBER() + JOIN para posição específica
-                    </div>
-                    <div class="code-block">❌ ERRADO: AVG(DATEDIFF(..., LAG(...)))
-
-✅ CORRETO: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT AVG(DATEDIFF(r2.order_date, r1.order_date))
-FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 AND r2.rn = 2;</div>
-                </div>
-
-                <!-- SIMULADOR PT -->
-                <div id="quiz-pt" class="quiz-section hidden-section">
-                    <h2 class="quiz-title">🎯 Simulador</h2>
-                    <p class="quiz-subtitle">Questões carregadas do Google Sheets - Meta: 70% para PASSAR</p>
-                    <div id="quiz-container-pt"></div>
-                    <button class="quiz-button" onclick="submitQuiz('pt')">📊 Enviar Respostas</button>
-                    <div id="results-pt" class="results-section">
-                        <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;">Seus Resultados</h3>
-                        <div class="score-display" id="score-display-pt">0/20</div>
-                        <div class="score-text" id="score-percentage-pt">0%</div>
-                        <div class="score-status" id="score-status-pt">Tente Novamente</div>
-                        <div class="result-details">
-                            <div class="detail-item">
-                                <span class="detail-label">✅ Acertos:</span>
-                                <span class="detail-value" id="correct-count-pt">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">❌ Erros:</span>
-                                <span class="detail-value" id="wrong-count-pt">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">📊 Taxa de Acerto:</span>
-                                <span class="detail-value" id="percentage-pt">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">🎯 Status:</span>
-                                <span class="detail-value" id="final-status-pt">Abaixo da meta</span>
-                            </div>
-                        </div>
-                        <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;">📋 Revisão Detalhada</h3>
-                        <div class="detailed-review" id="detailed-review-pt"></div>
-                        <button class="reset-button" onclick="resetQuiz('pt')">🔄 Refazer Quiz</button>
-                    </div>
+                <div class="detail-item">
+                    <span class="detail-label">🎯 Status:</span>
+                    <span class="detail-value" id="final-status">Abaixo da meta</span>
                 </div>
             </div>
 
-            <!-- INGLÊS -->
-            <div id="en-content" class="lang-content hidden-lang">
-                <!-- CONCEITOS EN -->
-                <div id="concept-1-en" class="concept-section">
-                    <h2 class="concept-title">1️⃣ SQL Execution Order + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>Why can't window functions be in WHERE?</strong><br>
-                        Because SQL executes in SPECIFIC ORDER: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>
-                        Window functions calculate in SELECT step (step 4), but WHERE is step 2!<br><br>
-                        <strong>Solution:</strong> Use CTE to calculate BEFORE WHERE.
-                    </div>
-                    <div class="code-block">❌ WRONG: WHERE ROW_NUMBER() OVER (...) = 1;
+            <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;" id="review-title">📋 Revisão</h3>
+            <div class="detailed-review" id="detailed-review"></div>
 
-✅ CORRECT: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT * FROM ranked WHERE rn = 1;</div>
-                </div>
-
-                <div id="concept-2-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">2️⃣ CTE vs TEMP TABLE</h2>
-                    <div class="explanation-box">
-                        <strong>CTE (WITH):</strong> Memory, only this query, no overhead<br>
-                        <strong>TEMP TABLE:</strong> Disk, persists until DROP, slower<br>
-                        <strong>For Debugging:</strong> CTE is MUCH better!
-                    </div>
-                    <div class="code-block">❌ AVOID: CREATE TEMP TABLE step1 AS SELECT *;
-
-✅ PREFER: WITH step1 AS (SELECT * FROM raw_data)
-SELECT * FROM step1;</div>
-                </div>
-
-                <div id="concept-3-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">3️⃣ ROLLUP vs CUBE vs GROUPING SETS</h2>
-                    <div class="explanation-box">
-                        <strong>ROLLUP:</strong> Hierarchical cascade (region → store) ✅<br>
-                        <strong>CUBE:</strong> ALL combinations (usually useless) ❌<br>
-                        <strong>GROUPING SETS:</strong> You specify exactly ✅<br>
-                        <strong>UNION ALL:</strong> 3x slower ❌
-                    </div>
-                    <div class="code-block">GROUP BY ROLLUP(region, store_id)
--- Generates: (region, store), (region), ()
--- 1 scan, hierarchical, perfect!</div>
-                </div>
-
-                <div id="concept-4-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">4️⃣ Liquid Clustering + OPTIMIZE</h2>
-                    <div class="explanation-box">
-                        <strong>DEFINE</strong> (CLUSTER BY): Define STRATEGY in metadata<br>
-                        <strong>APPLY</strong> (OPTIMIZE): Reorganize PHYSICALLY on disk<br>
-                        ⚠️ Without OPTIMIZE, data stays disorganized!
-                    </div>
-                    <div class="code-block">CREATE TABLE orders (...) CLUSTER BY (customer_id);
-INSERT INTO orders VALUES (...);
-OPTIMIZE orders;  -- ✅ REQUIRED!</div>
-                </div>
-
-                <div id="concept-5-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">5️⃣ Unity Catalog Deny-by-Default</h2>
-                    <div class="explanation-box">
-                        ❌ ERROR: "Empty schemas are invisible"<br>
-                        ✅ CORRECT: Invisible because LACKING USE SCHEMA privilege!<br>
-                        A schema can have 100 tables but be INVISIBLE.
-                    </div>
-                    <div class="code-block">GRANT USE SCHEMA ON SCHEMA prod.analytics TO `user@company.com`;
--- Now appears in SHOW SCHEMAS!</div>
-                </div>
-
-                <div id="concept-6-en" class="concept-section hidden-section">
-                    <h2 class="concept-title">6️⃣ LAG Function + Window Functions</h2>
-                    <div class="explanation-box">
-                        <strong>LAG:</strong> Brings value from PREVIOUS row<br>
-                        <strong>Problem:</strong> LAG calculates ALL gaps (1→2, 2→3, 3→4...)<br>
-                        <strong>Solution:</strong> Use ROW_NUMBER() + JOIN for specific position
-                    </div>
-                    <div class="code-block">❌ WRONG: AVG(DATEDIFF(..., LAG(...)))
-
-✅ CORRECT: WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM orders)
-SELECT AVG(DATEDIFF(r2.order_date, r1.order_date))
-FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 AND r2.rn = 2;</div>
-                </div>
-
-                <!-- SIMULADOR EN -->
-                <div id="quiz-en" class="quiz-section hidden-section">
-                    <h2 class="quiz-title">🎯 Simulator</h2>
-                    <p class="quiz-subtitle">Questions loaded from Google Sheets - Target: 70% to PASS</p>
-                    <div id="quiz-container-en"></div>
-                    <button class="quiz-button" onclick="submitQuiz('en')">📊 Submit Answers</button>
-                    <div id="results-en" class="results-section">
-                        <h3 style="font-size: 1.5em; color: var(--accent); margin-bottom: 1rem;">Your Results</h3>
-                        <div class="score-display" id="score-display-en">0/20</div>
-                        <div class="score-text" id="score-percentage-en">0%</div>
-                        <div class="score-status" id="score-status-en">Try Again</div>
-                        <div class="result-details">
-                            <div class="detail-item">
-                                <span class="detail-label">✅ Correct:</span>
-                                <span class="detail-value" id="correct-count-en">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">❌ Wrong:</span>
-                                <span class="detail-value" id="wrong-count-en">0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">📊 Accuracy Rate:</span>
-                                <span class="detail-value" id="percentage-en">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">🎯 Status:</span>
-                                <span class="detail-value" id="final-status-en">Below target</span>
-                            </div>
-                        </div>
-                        <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;">📋 Detailed Review</h3>
-                        <div class="detailed-review" id="detailed-review-en"></div>
-                        <button class="reset-button" onclick="resetQuiz('en')">🔄 Retake Quiz</button>
-                    </div>
-                </div>
-            </div>
+            <button class="reset-button" onclick="resetQuiz()" id="reset-btn">🔄 Refazer</button>
         </div>
     </div>
 
@@ -768,201 +432,73 @@ FROM ranked r1 JOIN ranked r2 ON r1.customer_id = r2.customer_id AND r1.rn = 1 A
         const SHEET_GID_PT = '0';
         const SHEET_GID_EN = '1';
 
-        let quizData = {};
-        let userAnswers = {};
+        let quizData = [];
+        let userAnswers = [];
         let currentLanguage = 'pt';
 
-        async function loadQuestionsFromSheet() {
-            try {
-                // Carregar PT
-                const csvUrlPt = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID_PT}`;
-                const responsePt = await fetch(csvUrlPt);
-                const csvPt = await responsePt.text();
-                quizData.pt = parseCSV(csvPt);
-
-                // Carregar EN
-                const csvUrlEn = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID_EN}`;
-                const responseEn = await fetch(csvUrlEn);
-                const csvEn = await responseEn.text();
-                quizData.en = parseCSV(csvEn);
-
-                console.log('✅ Questões carregadas com sucesso!');
-            } catch (error) {
-                console.error('❌ Erro ao carregar:', error);
+        const texts = {
+            pt: {
+                loading: 'Carregando questões...',
+                title: '🎯 Simulador Databricks',
+                subtitle: 'Meta: 70% para passar',
+                submitBtn: '📊 Enviar Respostas',
+                resultsTitle: 'Seus Resultados',
+                reviewTitle: '📋 Revisão',
+                resetBtn: '🔄 Refazer',
+                passed: '🎉 APROVADO!',
+                failed: '📖 Tente Novamente',
+                ready: '✅ Pronto para exame!',
+                belowTarget: '❌ Abaixo da meta (70%)',
+                question: 'Questão',
+                yourAnswer: 'Sua resposta:',
+                correctAnswer: 'Resposta correta:',
+                explanation: '💡 Explicação:'
+            },
+            en: {
+                loading: 'Loading questions...',
+                title: '🎯 Databricks Simulator',
+                subtitle: 'Target: 70% to pass',
+                submitBtn: '📊 Submit Answers',
+                resultsTitle: 'Your Results',
+                reviewTitle: '📋 Review',
+                resetBtn: '🔄 Retake',
+                passed: '🎉 PASSED!',
+                failed: '📖 Try Again',
+                ready: '✅ Ready for exam!',
+                belowTarget: '❌ Below target (70%)',
+                question: 'Question',
+                yourAnswer: 'Your answer:',
+                correctAnswer: 'Correct answer:',
+                explanation: '💡 Explanation:'
             }
-        }
+        };
 
-        function parseCSV(csv) {
-            const lines = csv.split('\n').filter(line => line.trim());
-            const questions = [];
-
-            for (let i = 1; i < lines.length; i++) {
-                const parts = parseCSVLine(lines[i]);
-                if (parts.length >= 7 && parts[1].trim()) {
-                    questions.push({
-                        id: i,
-                        question: parts[1].trim(),
-                        optionA: parts[2].trim(),
-                        optionB: parts[3].trim(),
-                        optionC: parts[4].trim(),
-                        correctAnswer: parseInt(parts[5]) - 1,
-                        feedback: parts[6].trim()
-                    });
-                }
-            }
-            return questions;
-        }
-
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
-            let insideQuotes = false;
-
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
-                    insideQuotes = !insideQuotes;
-                } else if (char === ',' && !insideQuotes) {
-                    result.push(current.trim().replace(/^"|"$/g, ''));
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            result.push(current.trim().replace(/^"|"$/g, ''));
-            return result;
-        }
-
-        function renderQuiz(lang) {
-            if (!quizData[lang] || quizData[lang].length === 0) return;
-
-            const container = document.getElementById(`quiz-container-${lang}`);
-            container.innerHTML = '';
-            userAnswers[lang] = new Array(quizData[lang].length).fill(-1);
-
-            quizData[lang].forEach((q, index) => {
-                const div = document.createElement('div');
-                div.className = 'question-card';
-                const options = [
-                    { text: q.optionA, id: 0 },
-                    { text: q.optionB, id: 1 },
-                    { text: q.optionC, id: 2 }
-                ];
-
-                div.innerHTML = `
-                    <div class="question-number">${lang === 'pt' ? 'Questão' : 'Question'} ${index + 1}/${quizData[lang].length}</div>
-                    <div class="question-text">${q.question}</div>
-                    <div class="options">
-                        ${options.map(opt => `
-                            <label class="option">
-                                <input type="radio" name="q${lang}${index}" value="${opt.id}" onchange="userAnswers['${lang}'][${index}] = ${opt.id}">
-                                <label>${opt.text}</label>
-                            </label>
-                        `).join('')}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function submitQuiz(lang) {
-            if (!quizData[lang] || userAnswers[lang].length === 0) return;
-
-            let correct = 0;
-            quizData[lang].forEach((q, i) => {
-                if (userAnswers[lang][i] === q.correctAnswer) correct++;
-            });
-
-            const pct = Math.round((correct / quizData[lang].length) * 100);
-            const pass = pct >= 70;
-
-            document.getElementById(`score-display-${lang}`).textContent = `${correct}/${quizData[lang].length}`;
-            document.getElementById(`score-percentage-${lang}`).textContent = `${pct}%`;
-            document.getElementById(`score-status-${lang}`).textContent = pass ? (lang === 'pt' ? '🎉 APROVADO!' : '🎉 PASSED!') : (lang === 'pt' ? '📖 Tente Novamente' : '📖 Try Again');
-            document.getElementById(`score-status-${lang}`).classList.add(pass ? 'pass' : 'fail');
-            document.getElementById(`correct-count-${lang}`).textContent = correct;
-            document.getElementById(`wrong-count-${lang}`).textContent = quizData[lang].length - correct;
-            document.getElementById(`percentage-${lang}`).textContent = `${pct}%`;
-            document.getElementById(`final-status-${lang}`).textContent = pass ? (lang === 'pt' ? '✅ Pronto para exame!' : '✅ Ready for exam!') : (lang === 'pt' ? '❌ Abaixo da meta (70%)' : '❌ Below target (70%)');
-
-            const reviewContainer = document.getElementById(`detailed-review-${lang}`);
-            reviewContainer.innerHTML = '';
-
-            quizData[lang].forEach((q, i) => {
-                const isCorrect = userAnswers[lang][i] === q.correctAnswer;
-                const options = [q.optionA, q.optionB, q.optionC];
-                const userAnswerText = userAnswers[lang][i] >= 0 ? options[userAnswers[lang][i]] : (lang === 'pt' ? 'Não respondida' : 'Not answered');
-                const correctAnswerText = options[q.correctAnswer];
-
-                const reviewDiv = document.createElement('div');
-                reviewDiv.className = `review-item ${isCorrect ? 'correct' : 'incorrect'}`;
-                reviewDiv.innerHTML = `
-                    <div class="review-question">Q${i + 1}: ${q.question}</div>
-                    <div class="review-answer">
-                        <strong>${lang === 'pt' ? 'Sua resposta:' : 'Your answer:'}</strong><br>
-                        <span class="${isCorrect ? 'answer-correct' : 'answer-incorrect'}">${userAnswerText}</span>
-                    </div>
-                    ${!isCorrect ? `
-                        <div class="review-answer">
-                            <strong>${lang === 'pt' ? 'Resposta correta:' : 'Correct answer:'}</strong><br>
-                            <span class="answer-correct">${correctAnswerText}</span>
-                        </div>
-                    ` : ''}
-                    <div class="review-feedback">
-                        <strong>${lang === 'pt' ? '💡 Explicação:' : '💡 Explanation:'}</strong><br>
-                        ${q.feedback}
-                    </div>
-                `;
-                reviewContainer.appendChild(reviewDiv);
-            });
-
-            document.getElementById(`results-${lang}`).classList.add('show');
-            window.scrollTo(0, document.getElementById(`results-${lang}`).offsetTop - 100);
-        }
-
-        function resetQuiz(lang) {
-            document.querySelectorAll(`input[type="radio"][name^="q${lang}"]`).forEach(r => r.checked = false);
-            document.getElementById(`results-${lang}`).classList.remove('show');
-            renderQuiz(lang);
-        }
-
-        function showSection(n, type) {
-            const lang = currentLanguage;
-            
-            // Limpar todas as seções
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`concept-${i}-${lang}`)?.classList.add('hidden-section');
-            }
-            document.getElementById(`quiz-${lang}`)?.classList.add('hidden-section');
-
-            // Mostrar seção selecionada
-            if (type === 'quiz') {
-                document.getElementById(`quiz-${lang}`).classList.remove('hidden-section');
-                if (!userAnswers[lang]) renderQuiz(lang);
-            } else {
-                document.getElementById(`concept-${n}-${lang}`).classList.remove('hidden-section');
-            }
-
-            // Atualizar nav ativo
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.target.closest('.nav-item').classList.add('active');
-        }
-
-        function setLanguage(lang) {
+        function switchLanguage(lang) {
             currentLanguage = lang;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            document.querySelectorAll('.lang-content').forEach(e => e.classList.add('hidden-lang'));
-            document.getElementById(lang + '-content').classList.remove('hidden-lang');
             
-            // Recarregar primeira seção
-            showSection(1, 'concept');
+            const t = texts[lang];
+            document.getElementById('quiz-title').textContent = t.title;
+            document.getElementById('quiz-subtitle').textContent = t.subtitle;
+            document.getElementById('submit-btn').textContent = t.submitBtn;
+            document.getElementById('results-title').textContent = t.resultsTitle;
+            document.getElementById('review-title').textContent = t.reviewTitle;
+            document.getElementById('reset-btn').textContent = t.resetBtn;
+            document.getElementById('loading-text').textContent = t.loading;
+            
+            loadQuestionsFromSheet(lang);
         }
 
-        // Carregar questões ao iniciar
-        window.addEventListener('load', () => {
-            loadQuestionsFromSheet();
-        });
-    </script>
-</body>
-</html>
+        async function loadQuestionsFromSheet(lang = 'pt') {
+            const gid = lang === 'pt' ? SHEET_GID_PT : SHEET_GID_EN;
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            
+            try {
+                const response = await fetch(csvUrl);
+                const csv = await response.text();
+                
+                const lines = csv.split('\n').filter(line => line.trim());
+                quizData = [];
+
+                for (let i
