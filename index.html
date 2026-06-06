@@ -352,7 +352,7 @@
         };
 
         async function loadAllQuestions() {
-            const gid = currentLang === 'pt' ? '0' : '1';
+            const gid = currentLang === 'pt' ? '0' : '768553834';
             const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
             try {
                 const response = await fetch(csvUrl);
