@@ -145,18 +145,6 @@
             border-radius: 10px;
             line-height: 1.8;
         }
-        .code-block {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            line-height: 1.6;
-            color: #00FF00;
-            overflow-x: auto;
-        }
         .quiz-section {
             background: linear-gradient(135deg, rgba(22, 33, 62, 0.8), rgba(22, 33, 62, 0.5));
             border: 2px solid var(--accent2);
@@ -172,6 +160,18 @@
         .quiz-subtitle {
             color: var(--text-muted);
             margin-bottom: 2rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .question-card {
             background: rgba(15, 52, 96, 0.6);
@@ -298,7 +298,6 @@
         .answer-incorrect { color: var(--danger); }
         .review-feedback { margin-top: 0.8rem; padding: 0.8rem; background: rgba(243, 156, 18, 0.1); border-left: 3px solid var(--warning); border-radius: 6px; font-size: 0.9em; }
         .reset-button { background: var(--accent); color: var(--primary); padding: 0.8rem 2rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 1.5rem; }
-        .error-message { background: rgba(231, 76, 60, 0.1); border-left: 4px solid var(--danger); padding: 1rem; border-radius: 6px; color: var(--text-light); }
     </style>
 </head>
 <body>
@@ -328,13 +327,14 @@
 
     <script>
         const SHEET_ID = '1-QHlyDSk-gsqmhorV5hj-wNAauNXDCLYQHkoUe8O9to';
-        let quizData = { pt: [], en: [] };
+        let allQuestions = { pt: [], en: [] };
         let currentLang = 'pt';
         let userAnswers = {};
+        let quizLoaded = false;
 
         const concepts = {
             pt: [
-                { id: 1, title: "1️⃣ SQL Execution Order", content: '<div class="explanation-box"><strong>Window functions não podem estar em WHERE!</strong><br>SQL: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>Window functions = SELECT (passo 4)<br>WHERE = passo 2<br><strong>Solução:</strong> Use CTE antes!</div><div class="code-block">❌ WHERE ROW_NUMBER() OVER (...) = 1\n✅ WITH ranked AS (...) SELECT * FROM ranked WHERE rn = 1</div>' },
+                { id: 1, title: "1️⃣ SQL Execution Order", content: '<div class="explanation-box"><strong>Window functions NÃO podem estar em WHERE!</strong><br>SQL: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>Window functions = SELECT (passo 4)<br>WHERE = passo 2<br><strong>Solução:</strong> Use CTE antes!</div>' },
                 { id: 2, title: "2️⃣ CTE vs TEMP TABLE", content: '<div class="explanation-box"><strong>CTE:</strong> Memória, sem disco<br><strong>TEMP TABLE:</strong> Disco, persiste<br><strong>Melhor para debugging:</strong> CTE!</div>' },
                 { id: 3, title: "3️⃣ ROLLUP vs CUBE", content: '<div class="explanation-box"><strong>ROLLUP:</strong> Hierarquia ✅<br><strong>CUBE:</strong> Todas combinações ❌<br><strong>GROUPING SETS:</strong> Você escolhe ✅</div>' },
                 { id: 4, title: "4️⃣ Liquid Clustering", content: '<div class="explanation-box"><strong>CLUSTER BY:</strong> Define estratégia<br><strong>OPTIMIZE:</strong> Aplica fisicamente<br>⚠️ Sem OPTIMIZE não funciona!</div>' },
@@ -344,48 +344,44 @@
             en: [
                 { id: 1, title: "1️⃣ SQL Execution Order", content: '<div class="explanation-box"><strong>Window functions NOT in WHERE!</strong><br>SQL: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>Window functions = SELECT (step 4)<br>WHERE = step 2<br><strong>Solution:</strong> Use CTE first!</div>' },
                 { id: 2, title: "2️⃣ CTE vs TEMP TABLE", content: '<div class="explanation-box"><strong>CTE:</strong> Memory, no disk<br><strong>TEMP TABLE:</strong> Disk, persists<br><strong>Best for debugging:</strong> CTE!</div>' },
-                { id: 3, title: "3️ ROLLUP vs CUBE", content: '<div class="explanation-box"><strong>ROLLUP:</strong> Hierarchy ✅<br><strong>CUBE:</strong> All combinations ❌<br><strong>GROUPING SETS:</strong> You choose ✅</div>' },
+                { id: 3, title: "3️⃣ ROLLUP vs CUBE", content: '<div class="explanation-box"><strong>ROLLUP:</strong> Hierarchy ✅<br><strong>CUBE:</strong> All combinations ❌<br><strong>GROUPING SETS:</strong> You choose ✅</div>' },
                 { id: 4, title: "4️⃣ Liquid Clustering", content: '<div class="explanation-box"><strong>CLUSTER BY:</strong> Define strategy<br><strong>OPTIMIZE:</strong> Apply physically<br>⚠️ Without OPTIMIZE no work!</div>' },
                 { id: 5, title: "5️⃣ Unity Catalog", content: '<div class="explanation-box">❌ "Empty schemas invisible"<br>✅ INVISIBLE WITHOUT USE SCHEMA privilege!<br>100 tables but invisible!</div>' },
                 { id: 6, title: "6️⃣ LAG Function", content: '<div class="explanation-box"><strong>LAG:</strong> Previous value<br><strong>Problem:</strong> Calculates ALL gaps<br><strong>Solution:</strong> ROW_NUMBER() + JOIN</div>' }
             ]
         };
 
-        async function loadQuiz() {
-            if (quizData[currentLang].length === 0) {
-                document.getElementById('content').innerHTML = '<div class="quiz-section"><p class="quiz-subtitle">Carregando questões...</p></div>';
-                await fetchQuestions(currentLang);
-            }
-            renderQuiz();
-        }
-
-        async function fetchQuestions(lang) {
-            const gid = lang === 'pt' ? '0' : '1';
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
-            
+        async function loadAllQuestions() {
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
             try {
-                const response = await fetch(url);
+                const response = await fetch(csvUrl);
                 const csv = await response.text();
                 const lines = csv.split('\n').filter(l => l.trim());
-                quizData[lang] = [];
-
+                allQuestions.pt = [];
+                allQuestions.en = [];
                 for (let i = 1; i < lines.length; i++) {
                     const parts = parseCSV(lines[i]);
-                    if (parts.length >= 7) {
-                        quizData[lang].push({
+                    if (parts.length >= 7 && parts[1].trim()) {
+                        const q = {
                             question: parts[1].trim(),
                             optionA: parts[2].trim(),
                             optionB: parts[3].trim(),
                             optionC: parts[4].trim(),
                             correctAnswer: parseInt(parts[5]) - 1,
                             feedback: parts[6].trim()
-                        });
+                        };
+                        const isPT = !q.question.match(/^(A|What|Which|How|To get|A data|After|Qual)/i);
+                        if (isPT) {
+                            allQuestions.pt.push(q);
+                        } else {
+                            allQuestions.en.push(q);
+                        }
                     }
                 }
-                console.log(`✅ ${lang}: ${quizData[lang].length} questões`);
+                console.log(`✅ PT: ${allQuestions.pt.length} | EN: ${allQuestions.en.length}`);
+                quizLoaded = true;
             } catch (error) {
                 console.error('❌ Erro:', error);
-                document.getElementById('content').innerHTML = `<div class="error-message">Erro ao carregar. Tente recarregar a página.</div>`;
             }
         }
 
@@ -410,61 +406,67 @@
         function showConcept(n) {
             const c = concepts[currentLang][n - 1];
             document.getElementById('content').innerHTML = `<div class="concept-section"><h2 class="concept-title">${c.title}</h2>${c.content}</div>`;
-            updateNav();
+        }
+
+        async function loadQuiz() {
+            if (!quizLoaded) {
+                document.getElementById('content').innerHTML = `<div class="quiz-section"><h2 class="quiz-title">🎯 Simulador</h2><p class="quiz-subtitle"><div class="spinner"></div> Carregando questões...</p></div>`;
+                await loadAllQuestions();
+            }
+            renderQuiz();
         }
 
         function renderQuiz() {
-            const q = quizData[currentLang];
-            if (q.length === 0) return;
-
-            let html = `<div class="quiz-section"><h2 class="quiz-title">🎯 ${currentLang === 'pt' ? 'Simulador' : 'Simulator'}</h2>`;
+            const q = allQuestions[currentLang];
+            if (q.length === 0) {
+                document.getElementById('content').innerHTML = '<div style="color: var(--danger);">❌ Nenhuma questão encontrada</div>';
+                return;
+            }
+            let html = `<div class="quiz-section"><h2 class="quiz-title">🎯 Simulador</h2>`;
             q.forEach((qu, i) => {
                 html += `<div class="question-card">
-                    <div class="question-number">${currentLang === 'pt' ? 'Q' : 'Q'}${i+1}/${q.length}</div>
+                    <div class="question-number">Q${i+1}/${q.length}</div>
                     <div class="question-text">${qu.question}</div>
                     <div class="options">
-                        <label class="option"><input type="radio" name="q${i}" onchange="userAnswers['${currentLang}']=${i};" value="0"><label>${qu.optionA}</label></label>
-                        <label class="option"><input type="radio" name="q${i}" onchange="userAnswers['${currentLang}']=${i};" value="1"><label>${qu.optionB}</label></label>
-                        <label class="option"><input type="radio" name="q${i}" onchange="userAnswers['${currentLang}']=${i};" value="2"><label>${qu.optionC}</label></label>
+                        <label class="option"><input type="radio" name="q${i}" value="0" onchange="userAnswers[${i}]=0;"><label>${qu.optionA}</label></label>
+                        <label class="option"><input type="radio" name="q${i}" value="1" onchange="userAnswers[${i}]=1;"><label>${qu.optionB}</label></label>
+                        <label class="option"><input type="radio" name="q${i}" value="2" onchange="userAnswers[${i}]=2;"><label>${qu.optionC}</label></label>
                     </div>
                 </div>`;
             });
-            html += `<button class="quiz-button" onclick="submit()">${currentLang === 'pt' ? 'Enviar' : 'Submit'}</button><div id="results"></div></div>`;
+            html += `<button class="quiz-button" onclick="submitQuiz()">${currentLang === 'pt' ? 'Enviar Respostas' : 'Submit Answers'}</button><div id="results"></div></div>`;
             document.getElementById('content').innerHTML = html;
-            userAnswers[currentLang] = new Array(q.length).fill(-1);
+            userAnswers = {};
         }
 
-        function submit() {
-            const q = quizData[currentLang];
-            const a = userAnswers[currentLang];
+        function submitQuiz() {
+            const q = allQuestions[currentLang];
             let correct = 0;
             q.forEach((qu, i) => {
-                if (a[i] == qu.correctAnswer) correct++;
+                if (userAnswers[i] === qu.correctAnswer) correct++;
             });
-            const pct = Math.round(correct / q.length * 100);
+            const pct = Math.round((correct / q.length) * 100);
             const pass = pct >= 70;
-
             let html = `<div class="results-section show">
-                <h3>${currentLang === 'pt' ? 'Resultados' : 'Results'}</h3>
+                <h3>${currentLang === 'pt' ? 'Seus Resultados' : 'Your Results'}</h3>
                 <div class="score-display">${correct}/${q.length}</div>
-                <div style="font-size:1.3em; color:var(--text-muted); margin:1rem 0;">${pct}%</div>
-                <div class="score-status ${pass ? 'pass' : 'fail'}">${pass ? (currentLang === 'pt' ? '🎉 APROVADO!' : '🎉 PASSED!') : (currentLang === 'pt' ? '📖 Tente novamente' : '📖 Try again')}</div>
+                <div style="font-size: 1.3em; color: var(--text-muted); margin: 1rem 0;">${pct}%</div>
+                <div class="score-status ${pass ? 'pass' : 'fail'}">${pass ? (currentLang === 'pt' ? '🎉 APROVADO!' : '🎉 PASSED!') : (currentLang === 'pt' ? '📖 Tente Novamente' : '📖 Try Again')}</div>
                 <div class="result-details">
                     <div class="detail-item"><span>${currentLang === 'pt' ? 'Acertos' : 'Correct'}:</span><span class="detail-value">${correct}</span></div>
                     <div class="detail-item"><span>${currentLang === 'pt' ? 'Erros' : 'Wrong'}:</span><span class="detail-value">${q.length - correct}</span></div>
                 </div>
-                <h3 style="color:var(--accent); margin-top:1.5rem;">${currentLang === 'pt' ? 'Revisão' : 'Review'}</h3>
+                <h3 style="color: var(--accent); margin-top: 1.5rem;">${currentLang === 'pt' ? 'Revisão Detalhada' : 'Detailed Review'}</h3>
                 <div class="detailed-review">`;
-
             q.forEach((qu, i) => {
-                const ok = a[i] == qu.correctAnswer;
+                const isCorrect = userAnswers[i] === qu.correctAnswer;
                 const opts = [qu.optionA, qu.optionB, qu.optionC];
-                const userAns = a[i] >= 0 ? opts[a[i]] : (currentLang === 'pt' ? 'Não respondida' : 'Not answered');
-                html += `<div class="review-item ${ok ? 'correct' : 'incorrect'}">
+                const userAns = userAnswers[i] !== undefined ? opts[userAnswers[i]] : (currentLang === 'pt' ? 'Não respondida' : 'Not answered');
+                html += `<div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
                     <div class="review-question">Q${i+1}: ${qu.question}</div>
-                    <div class="review-answer"><strong>${currentLang === 'pt' ? 'Sua resposta:' : 'Your answer:'}</strong><br><span class="${ok ? 'answer-correct' : 'answer-incorrect'}">${userAns}</span></div>
-                    ${!ok ? `<div class="review-answer"><strong>${currentLang === 'pt' ? 'Correta:' : 'Correct:'}</strong><br><span class="answer-correct">${opts[qu.correctAnswer]}</span></div>` : ''}
-                    <div class="review-feedback"><strong>💡 ${currentLang === 'pt' ? 'Explicação' : 'Explanation'}:</strong><br>${qu.feedback}</div>
+                    <div class="review-answer"><strong>${currentLang === 'pt' ? 'Sua resposta:' : 'Your answer:'}</strong><br><span class="${isCorrect ? 'answer-correct' : 'answer-incorrect'}">${userAns}</span></div>
+                    ${!isCorrect ? `<div class="review-answer"><strong>${currentLang === 'pt' ? 'Correta:' : 'Correct:'}</strong><br><span class="answer-correct">${opts[qu.correctAnswer]}</span></div>` : ''}
+                    <div class="review-feedback"><strong>💡</strong> ${qu.feedback}</div>
                 </div>`;
             });
             html += `</div><button class="reset-button" onclick="loadQuiz()">${currentLang === 'pt' ? 'Refazer' : 'Retake'}</button></div>`;
@@ -478,15 +480,9 @@
             showConcept(1);
         }
 
-        function updateNav() {
-            document.querySelectorAll('.nav-item').forEach((el, i) => {
-                el.classList.remove('active');
-                if (i === 0) el.classList.add('active');
-            });
-        }
-
-        window.addEventListener('load', () => {
-            fetchQuestions('pt').then(() => fetchQuestions('en'));
+        window.addEventListener('load', async () => {
+            await loadAllQuestions();
+            showConcept(1);
         });
     </script>
 </body>
