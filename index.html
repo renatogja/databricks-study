@@ -343,42 +343,37 @@
             ],
             en: [
                 { id: 1, title: "1️⃣ SQL Execution Order", content: '<div class="explanation-box"><strong>Window functions NOT in WHERE!</strong><br>SQL: FROM → WHERE → GROUP BY → SELECT → ORDER BY<br>Window functions = SELECT (step 4)<br>WHERE = step 2<br><strong>Solution:</strong> Use CTE first!</div>' },
-                { id: 2, title: "2️⃣ CTE vs TEMP TABLE", content: '<div class="explanation-box"><strong>CTE:</strong> Memory, no disk<br><strong>TEMP TABLE:</strong> Disk, persists<br><strong>Best for debugging:</strong> CTE!</div>' },
+                { id: 2, title: "2 CTE vs TEMP TABLE", content: '<div class="explanation-box"><strong>CTE:</strong> Memory, no disk<br><strong>TEMP TABLE:</strong> Disk, persists<br><strong>Best for debugging:</strong> CTE!</div>' },
                 { id: 3, title: "3️⃣ ROLLUP vs CUBE", content: '<div class="explanation-box"><strong>ROLLUP:</strong> Hierarchy ✅<br><strong>CUBE:</strong> All combinations ❌<br><strong>GROUPING SETS:</strong> You choose ✅</div>' },
                 { id: 4, title: "4️⃣ Liquid Clustering", content: '<div class="explanation-box"><strong>CLUSTER BY:</strong> Define strategy<br><strong>OPTIMIZE:</strong> Apply physically<br>⚠️ Without OPTIMIZE no work!</div>' },
-                { id: 5, title: "5️⃣ Unity Catalog", content: '<div class="explanation-box">❌ "Empty schemas invisible"<br>✅ INVISIBLE WITHOUT USE SCHEMA privilege!<br>100 tables but invisible!</div>' },
+                { id: 5, title: "5 Unity Catalog", content: '<div class="explanation-box">❌ "Empty schemas invisible"<br>✅ INVISIBLE WITHOUT USE SCHEMA privilege!<br>100 tables but invisible!</div>' },
                 { id: 6, title: "6️⃣ LAG Function", content: '<div class="explanation-box"><strong>LAG:</strong> Previous value<br><strong>Problem:</strong> Calculates ALL gaps<br><strong>Solution:</strong> ROW_NUMBER() + JOIN</div>' }
             ]
         };
 
         async function loadAllQuestions() {
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+            const gid = currentLang === 'pt' ? '0' : '1';
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
             try {
                 const response = await fetch(csvUrl);
                 const csv = await response.text();
                 const lines = csv.split('\n').filter(l => l.trim());
-                allQuestions.pt = [];
-                allQuestions.en = [];
+                const questions = [];
                 for (let i = 1; i < lines.length; i++) {
                     const parts = parseCSV(lines[i]);
                     if (parts.length >= 7 && parts[1].trim()) {
-                        const q = {
+                        questions.push({
                             question: parts[1].trim(),
                             optionA: parts[2].trim(),
                             optionB: parts[3].trim(),
                             optionC: parts[4].trim(),
                             correctAnswer: parseInt(parts[5]) - 1,
                             feedback: parts[6].trim()
-                        };
-                        const isPT = !q.question.match(/^(A|What|Which|How|To get|A data|After|Qual)/i);
-                        if (isPT) {
-                            allQuestions.pt.push(q);
-                        } else {
-                            allQuestions.en.push(q);
-                        }
+                        });
                     }
                 }
-                console.log(`✅ PT: ${allQuestions.pt.length} | EN: ${allQuestions.en.length}`);
+                allQuestions[currentLang] = questions;
+                console.log(`✅ ${currentLang.toUpperCase()}: ${questions.length} questões`);
                 quizLoaded = true;
             } catch (error) {
                 console.error('❌ Erro:', error);
@@ -409,7 +404,7 @@
         }
 
         async function loadQuiz() {
-            if (!quizLoaded) {
+            if (!quizLoaded || !allQuestions[currentLang].length) {
                 document.getElementById('content').innerHTML = `<div class="quiz-section"><h2 class="quiz-title">🎯 Simulador</h2><p class="quiz-subtitle"><div class="spinner"></div> Carregando questões...</p></div>`;
                 await loadAllQuestions();
             }
@@ -475,6 +470,7 @@
 
         function setLang(lang) {
             currentLang = lang;
+            quizLoaded = false;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             showConcept(1);
